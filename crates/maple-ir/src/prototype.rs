@@ -20,12 +20,20 @@ impl<'a> PrototypeMethod<'a> {
 }
 
 pub struct Prototype<'a, T : Type, V : Value<T>> {
-    pub(crate) value: V,
+    pub(crate) receiver: V,
     pub(crate) methods: HashMap<String, &'a mut PrototypeMethod<'a>>,
     pub(crate) associated_type: T,
 }
 
 impl<'a, T : Type, V : Value<T>> Prototype<'a, T, V> {
+    pub fn new(receiver: V, associated_type: T) -> Self {
+        Self {
+            receiver,
+            associated_type,
+            methods: HashMap::new(),
+        }
+    }
+
     pub fn add_method(mut self, method: &'a mut PrototypeMethod<'a>) -> Result<(), String> {
         let method_name = method.get_name().to_owned();
         if self.methods.contains_key(&method_name) {
@@ -37,5 +45,5 @@ impl<'a, T : Type, V : Value<T>> Prototype<'a, T, V> {
 }
 
 pub trait PrototypeDefinition<T : Type, V : Value<T>> {
-    fn build_proto<'a>(self, _type: T) -> Prototype<'a, T, V>;
+    fn build_proto<'a>(self, receiver: V) -> Prototype<'a, T, V>;
 }

@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::marker::PhantomData;
 use std::ops::Index;
 use crate::expr::Expr;
 use crate::prototype::{Prototype, PrototypeDefinition};
@@ -44,34 +43,26 @@ impl Type for TupleDefinition {
     }
 }
 
-///
-///
-/// # Type Arguments
-/// `T` The Tuple type this prototype definition is associated with
-pub struct TuplePrototypeDefinition<T : Type, V> where V : Value<T> {
-    recipient: V,
-    type_name: String,
-    __marker: PhantomData<T>,
+pub struct TuplePrototypeDefinition {
+    associated_type: TupleDefinition,
 }
 
-impl<T : Type, V : Value<T>> Expr for TuplePrototypeDefinition<T, V> {}
+impl Expr for TuplePrototypeDefinition {}
 
-impl<T : Type, V : Value<T>> PrototypeDefinition<T, V> for TuplePrototypeDefinition<T, V> {
-    fn build_proto<'a>(self, _type: T) -> Prototype<'a, T, V> {
+impl PrototypeDefinition<TupleDefinition, TupleValue> for TuplePrototypeDefinition {
+    fn build_proto<'a>(self, receiver: TupleValue) -> Prototype<'a, TupleDefinition, TupleValue> {
         Prototype {
-            value: self.recipient,
-            associated_type: _type,
+            receiver,
+            associated_type: self.associated_type,
             methods: HashMap::new(),
         }
     }
 }
 
-impl<T: Type, V: Value<T>> TuplePrototypeDefinition<T, V> {
-    pub fn new(recipient: V, _type: T) -> Self {
+impl TuplePrototypeDefinition {
+    pub fn new(_type: TupleDefinition) -> Self {
         Self {
-            recipient,
-            type_name: _type.name(),
-            __marker: PhantomData::default(),
+            associated_type: _type,
         }
     }
 }
