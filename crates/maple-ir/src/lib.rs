@@ -6,3 +6,4 @@ pub mod block;
 pub mod variable;
 pub mod expr;
 pub mod tuple;
+pub mod array;
