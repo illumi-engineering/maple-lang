@@ -320,7 +320,7 @@ impl<T> From<T> for Token
 #[cfg(test)]
 mod test {
     use crate::errors::ErrorKind;
-    use crate::lex::{skip_whitespace, tokenize, tokenize_identifier, TokenKind};
+    use crate::lex::{skip_comments, skip_whitespace, tokenize, tokenize_identifier, TokenKind};
     macro_rules! lexer_test {
         (FAIL: $name:ident, $func:ident, $src:expr) => {
             #[cfg(test)]
@@ -383,10 +383,9 @@ mod test {
     }
 
     comment_test!(slash_slash_skips_to_end_of_line, "// foo bar { baz }\n 1234" => 19);
-    comment_test!(comment_skip_curly_braces, "{ baz \n 1234} hello wor\nld" => 13);
-    comment_test!(comment_skip_round_brackets, "(* Hello World *) asd" => 17);
+    comment_test!(comment_skip_self_closed, "/* Hello World */ asd" => 17);
     comment_test!(comment_skip_ignores_alphanumeric, "123 hello world" => 0);
-    comment_test!(comment_skip_ignores_whitespace, "   (* *) 123 hello world" => 0);
+    comment_test!(comment_skip_ignores_whitespace, "   /* */ 123 hello world" => 0);
 
     #[cfg(test)]
     #[test]
