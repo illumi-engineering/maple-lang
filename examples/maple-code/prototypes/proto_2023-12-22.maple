@@ -53,12 +53,12 @@ enum HairColor [
 
 // Objects are a lot like classes in Typescript
 object Person {
-    public val(prop) name: Name
-    public val(prop) age: Int
-    public val(prop) hairColor: HairColor
+    public val name: Name
+    public val age: Int
+    public val hairColor: HairColor
 
     // properties can have default values - you a broke bitch
-    private val(prop) money: Int = 0
+    private val money: Int = 0
 
     // The `constructor` tells the compiler that this function should statically
     // create a new Person.
@@ -116,7 +116,7 @@ object Person {
 
 // Objects can be defined and used out of order
 object Paycheck {
-    public val(prop) amount: Double
+    public val amount: Double
 
     // A static value that represents a tax rate of 5%
     public val(static) TAX_RATE: Double = .05

@@ -1,6 +1,6 @@
 use crate::types::{PrimitiveType, Type, TypeInfo};
 
-pub trait Value<T : Type> {}
+pub trait Value<T : Type> : TypeInfo<T> {}
 
 pub enum PrimitiveValue {
     StringValue(String),

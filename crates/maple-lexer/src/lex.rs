@@ -4,10 +4,10 @@ use std::str;
 use error_chain::bail;
 use crate::codemap::Span;
 use crate::errors::*;
-use error_chain::example_generated::ResultExt;
 use serde::{Deserialize, Serialize};
 
-
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type")]
 pub enum TokenKind {
     // Values
     Integer(usize),
@@ -143,7 +143,6 @@ fn tokenize_number(data: &str) -> Result<(TokenKind, usize)> {
     } else {
         let n: usize = decimal.parse()?;
         Ok((TokenKind::Integer(n), bytes_read))
-
     }
 }
 
@@ -221,7 +220,7 @@ pub fn tokenize_single_token(data: &str) -> Result<(TokenKind, usize)> {
         '>' => (TokenKind::CloseAngle, 1),
         '!' => (TokenKind::Exclamation, 1),
         '?' => (TokenKind::Question, 1),
-        '0' ... '9' => tokenize_number(data).chain_err(|| "Couldn't tokenize a number")?,
+        '0' ..= '9' => tokenize_number(data).chain_err(|| "Couldn't tokenize a number")?,
         c @ '_' | c if c.is_alphabetic() => tokenize_identifier(data)
             .chain_err(|| "Couldn't tokenize an identifier")?,
         other => bail!(ErrorKind::UnknownCharacter(other)),

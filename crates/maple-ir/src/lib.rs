@@ -1,18 +1,8 @@
-mod types;
-mod values;
-mod prototype;
-
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub mod types;
+pub mod values;
+pub mod prototype;
+pub mod closure;
+pub mod block;
+pub mod variable;
+pub mod expr;
+pub mod tuple;
