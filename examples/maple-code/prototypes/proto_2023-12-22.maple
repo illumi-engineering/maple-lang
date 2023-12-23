@@ -1,0 +1,149 @@
+// Define a trait function to that expects behavior to convert a value to type T
+trait fun to<T>(): T
+
+// So you want to require a property? Use a trait getter!
+trait fun(get) displayName: String
+
+// You can define a tuple type with parenthesis
+tuple Name (String, String) {
+    |(first, last)| impl fun to<String>() = "${first} ${last}"
+
+    // getter functions for first and last name
+    |(first, _)| fun(get) first = first
+    |(_, last)| fun(get) last = last
+}
+
+// Enums have a deterministic list of allowed values
+enum HairColor [
+    Brown,
+    Black,
+    Red,
+    Gray,
+    White,
+    Blonde
+] {
+    // An example of implementing a trait function for string conversion. Here
+    // we are telling the compiler that we need to access the value of self at
+    // the beginning of the function definition.
+    //
+    // The `impl` keyword tells the compiler to treat this as an implementation
+    // of the `to` trait function for converting to the String type
+    //
+    // When using the `when` block with an enum, all values are required if you
+    // do not wish to include the fallback case
+    |self| public impl fun to<String>() = when self {
+        Brown -> "brown"
+        Black -> "black"
+        Red -> "red"
+        Gray -> "gray"
+        White -> "white"
+        Blonde -> "blonde"
+    }
+
+    // enums can have getters too
+    |self| public fun(get) driversLicenseValue = when self {
+        Brown -> "BRO"
+        Black -> "BLA"
+        Red -> "RED"
+        Gray -> "GRY"
+        White -> "WHT"
+        Blonde -> "BLO"
+    }
+}
+
+// Objects are a lot like classes in Typescript
+object Person {
+    public val(prop) name: Name
+    public val(prop) age: Int
+    public val(prop) hairColor: HairColor
+
+    // properties can have default values - you a broke bitch
+    private val(prop) money: Int = 0
+
+    // The `constructor` tells the compiler that this function should statically
+    // create a new Person.
+    public fun(constructor) new(name: Name, age: Int, hairColor: HairColor = HairColor.Brown) = Person {
+        name,
+        age,
+        hairColor
+    }
+
+    // The destructuring here is done on this instance of `self`, allowing users
+    // to choose which properties they need for this function.
+    |{name}| public fun(get) greeting = "Hello, ${name.first}!" }
+
+    // Here's another example:
+    //
+    // Since `name` and `hairColor` both implement the trait function
+    // `to<String>`, we can omit calls to it inside of string interpolation.
+    |{name, age, hairColor}| public fun(get) bio = """
+    My name is ${name}, I am ${age} years old and I have ${hairColor} hair.
+    """
+
+    // A very basic example of a getter function. This "function" has no
+    // parenthesis because instead of being accessed like a call like in most
+    // languages, getters here should clearly never accept arguments, and should
+    // be accessible in a syntax like this:
+    //
+    //     if person.hasSoul { /* this person has soul */ }
+    |{hairColor}| public fun(get) hasSoul = hairColor == HairColor.Red // Gingers have soul!
+
+    // So far all the examples have been getters, it's time to have some real
+    // fun! This function deposits a paycheck :p
+    |{money}| fun deposit(paycheck: Paycheck) {
+        money += paycheck.afterTax
+    }
+
+    // Fuck! You forgot to deposit last week's check. This function deposits
+    // multiple at once though, so you're covered :)
+    //
+    // ?!Paycheck.Error tells the compiler we expect to possibly throw an error
+    // with the type `Paycheck#Error`. `#` is used to access companion types.
+    |{money}| fun depositMultiple(paychecks: Paycheck[]) ?!Paycheck#Error {
+        // for each paycheck in the list, loop and add them together starting
+        // with nil.
+        val totalPaycheck: Paycheck? = paychecks.reduce(
+            (prev, current) -> if prev == nil { current } else { prev + current },
+            init = nil // named function arguments
+        )
+
+        if totalPaycheck == nil { throw Paycheck#Error("Ya broke bitch") }
+        else { money += totalPaycheck.afterTax }
+    }
+
+    |{age, hairColor}| fun getDriversLicense()
+}
+
+// Objects can be defined and used out of order
+object Paycheck {
+    public val(prop) amount: Double
+
+    // A static value that represents a tax rate of 5%
+    public val(static) TAX_RATE: Double = .05
+
+    // Operator implementations allow you to define how operators should behave
+    // with your objects. In the fiollowing example, paycheck1 has $254.80 and
+    // paycheck2 has $330.45:
+    //
+    // An expression like `paycheck1 + paycheck2` should equate to a paycheck
+    // with its amount equalling `585.25`
+    |self as lhs| impl op plus(rhs: Paycheck): Paycheck = Paycheck {
+        amount: lhs.amount + rhs.amount
+    }
+
+    |{amount}| public fun(get) afterTax = amount - (amount * TAX_RATE)
+
+    companion {
+        // Companions allow you to define related types, but not functions or
+        // values.
+
+        public tuple Error(String) {
+            |(msg)| public fun dump() {
+                // :: here is a namespace qualifier, we are telling the compiler
+                // to use the STDOUT value from the sys::io namespace, calling
+                // its Buffer.writeLine method.
+                sys::io::STDOUT.writeLine(msg)
+            }
+        }
+    }
+}
