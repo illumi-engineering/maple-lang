@@ -1,16 +1,19 @@
 use std::collections::HashMap;
 use crate::closure::Closure;
+use crate::spread::Spread;
 use crate::types::Type;
 use crate::values::Value;
 
-pub struct PrototypeMethod<'a> {
+pub struct PrototypeMethod<'a,> {
     closure: &'a mut Closure<'a>,
+    reciever_values: Spread,
 }
 
 impl<'a> PrototypeMethod<'a> {
     pub fn new(closure: &'a mut Closure<'a>) -> Self {
         Self {
             closure,
+            reciever_values: Spread {},
         }
     }
 

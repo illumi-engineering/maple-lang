@@ -7,3 +7,4 @@ pub mod variable;
 pub mod expr;
 pub mod tuple;
 pub mod array;
+pub mod spread;
